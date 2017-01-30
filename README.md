@@ -1,22 +1,21 @@
-Geonames gazetteer running in Elasticsearch
-=======
+ES-Geonames
+===========
 
-wget http://download.geonames.org/export/dump/allCountries.zip
+Create a Geonames index running locally in Elasticsearch container. The index
+is stored in a data volume, which can be moved elsewhere and quickly stood up.
 
-First, download and run the default Elasticsearch image:
-
-```
-docker run -d -p 9200:9200 elasticsearch:1.6 
-```
-
-Then load the gazetteer into Elasticsearch:
+To download the Geonames.org gazetter, set up Dockerized Elasticsearch, and
+load the gazetteer into Elasticsearch, simply run
 
 ```
-python geonames_elasticsearch_loader.py 
+bash create_index.sh
 ```
 
-This takes about 25 minutes on an 8 core machine.
+The `data/` directory can be compressed and moved elsewhere. To start a new
+Elasticsearch instance using the prepared index, run
 
-Next steps: use persistant storage.
+```
+sudo docker run -d -p 127.0.0.1:9200:9200 -v /path/to/data/:/usr/share/elasticsearch/data elasticsearch
+```
 
-https://docs.docker.com/engine/tutorials/dockervolumes/
+where `/path/to/data/` is the full path to the decompressed index.
