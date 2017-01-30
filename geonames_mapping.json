@@ -1,0 +1,31 @@
+{
+    "settings" : {
+        "number_of_shards" : 1,
+        "number_of_replicas" : 1
+    },
+    "mappings" : {
+       "geoname" : {
+        "properties" : {
+          "geonameid" : {"type" : "text", "index":    "not_analyzed"},
+          "name" : {"type" : "text"},
+          "asciiname" : {"type" : "text"},
+          "alternativenames" : {"type" : "text"},
+          "coordinates" : {"type" : "geo_point"},
+          "feature_class" :  {"type" : "text", "index":    "not_analyzed"},
+          "feature_code" : {"type" : "text", "index":    "not_analyzed"},
+          "country_code2" : {"type" : "text", "index":    "not_analyzed"},
+          "country_code3" : {"type" : "text", "index":    "not_analyzed"},
+          "cc2" :  {"type" : "keyword"}, 
+          "admin1_code" : {"type" : "text", "index":  "not_analyzed"},
+          "admin2_code" : {"type" : "text", "index":  "not_analyzed"},
+          "admin3_code" : {"type" : "text", "index":  "not_analyzed"},
+          "admin4_code" : {"type" : "text", "index":  "not_analyzed"},
+          "population" : {"type" :  "long"},
+          "elevation" : {"type" :  "long"},
+          "dem" : {"type" :  "long"},
+          "timzeone" :  {"type" : "text", "index":  "not_analyzed"},
+          "modification_date" : {"type" : "date", "format": "date"}
+          }
+       }
+   } 
+}
