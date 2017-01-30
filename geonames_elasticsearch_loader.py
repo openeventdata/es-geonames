@@ -120,7 +120,8 @@ chunk_count = 0
 for chunk in bulk_chunks(documents(reader, es), docs_per_chunk=500):
     es.bulk(chunk)
     chunk_count += 1
-    print 'Chunk count:', chunk_count
+    if chunk_count % 1000 == 0:
+        print 'Chunk count: {0}'.format(chunk_count)
 
 es.refresh('geonames')
 
