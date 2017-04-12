@@ -106,7 +106,7 @@ def documents(reader, es):
                     "population" : row[14],
                     "elevation" : row[15],
                     "dem" : row[16],
-                    "timzeone" :  row[17],
+                    "timezone" :  row[17],
                     "modification_date" : "2014-01-01"
                    }
             yield es.index_op(doc, index='geonames', doc_type='geoname')
