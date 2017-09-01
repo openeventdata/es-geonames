@@ -24,3 +24,8 @@ index on your host machine.
 
 This Geonames index is meant to be used with OEDA's [full text geoparse,
 Mordecai](https://github.com/openeventdata/mordecai).
+
+ES-Geonames with Logstash
+=========================
+
+The same work for the python script but with posibilities to create the index based in the pipeline defined by the developer in the file `logstash/logstash-pipeline.conf`. See logstash folder.
