@@ -2,9 +2,9 @@ echo "Setting env vars..."
 source environment_variables.sample.sh
 
 echo "Downloading Geonames gazetteer..."
-#wget http://download.geonames.org/export/dump/allCountries.zip
+wget http://download.geonames.org/export/dump/allCountries.zip
 echo "Unpacking Geonames gazetteer..."
-#unzip allCountries.zip
+unzip allCountries.zip
 
 #echo "Starting Docker container and data volume..."
 #sudo docker run -d -p 127.0.0.1:9200:9200 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:5.1.2
