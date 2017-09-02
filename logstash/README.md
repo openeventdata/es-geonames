@@ -73,3 +73,6 @@ If looking for JSON output just comment the output > stout > `# codec => json`, 
     "CountryCode3":"AFG"
 }
 ```
+
+
+You can find this repo in the official [GEONAMES client libraries](http://www.geonames.org/export/client-libraries.html).
