@@ -4,3 +4,6 @@ allCountries.txt
 .pyc
 *.DS_Store
 environment_variables.sh
+
+# premium data
+airports.txt
