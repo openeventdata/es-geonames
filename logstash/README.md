@@ -76,3 +76,20 @@ If looking for JSON output just comment the output > stout > `# codec => json`, 
 
 
 You can find this repo in the official [GEONAMES client libraries](http://www.geonames.org/export/client-libraries.html).
+
+# Premium data
+Premium data could be uploaded with the Logstash pipeline, as those updates are updated in a monthly basis, its ideal to keep the index up-to-date. The main requirement to use the premium data ingester is to run the free data first, if you did the steps above you are done, the logic behind update geonames is to download the data each month and run the commands at this moment.
+
+`GeonamesID` is the key id for the documents, as the premium data references this ID, the logstash pipeline will update the existing places with the additional information:
+
+## Airports
+
+`
+%{INT:GeonamesId}	%{DATA:Name}	%{DATA:FeatureCode}	%{DATA:CountryCode}	%{DATA:AdminCode1}	%{DATA:AdminCode2}	%{DATA:TimeZoneId}	%{DATA:Latitude}	%{DATA:Longitude}	%{DATA:IATA}	%{DATA:ICAO}	%{DATA:Unlocode}	%{DATA:CityId}	%{DATA:CityName}	%{DATA:IsActive}"
+`
+
+Pipeline will update place records where `GeonamesId` = indexed `GeonamesId` with:
+- `IATA`:
+- `ICAO`:
+- `Unlocode`:
+- `IsActive`:
