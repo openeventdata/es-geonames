@@ -24,7 +24,7 @@ As well as some new fields based on the codes list http://www.geonames.org/expor
 On the logstash folder:
 - Copy `environment_variables.sample.sh` to `environment_variables.sh` with your environment vars.
 - Run the index creator `sh create_index.sh`
-- Start logstash `logstash -f logstash-pipeline.conf` it will take a ~5 to ~10 minutes to start due big pipeline _(anyways it should take less, elastic should be improving this)_ but as soon it starts it will take just a few minutes to finish the ingest (2K per second in my i7 8G machine). The output log will look like `2017-09-01T12:09:14.354Z %{host} %{message}` as an info output for you to know when it finishes.
+- Start logstash `logstash -f logstash-pipeline.conf` it will take some seconds to start due big pipeline and will take just a few minutes to finish the ingest (2K per second in my i7 8G machine). The output log will look like `2017-09-01T12:09:14.354Z %{host} %{message}` as an info output for you to know when it finishes.
 - Done, enjoy
 
 
