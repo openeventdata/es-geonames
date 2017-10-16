@@ -1,0 +1,9 @@
+allCountries.zip
+allCountries.txt
+.idea
+.pyc
+*.DS_Store
+environment_variables.sh
+
+# premium data
+airports.txt

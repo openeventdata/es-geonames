@@ -1,0 +1,24 @@
+{
+  "mappings": {
+    "place": {
+      "properties": {
+        "ModificationDate": {
+          "type": "date",
+          "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        },
+        "Latitude": {
+          "type": "double"
+        },
+        "Longitude": {
+          "type": "double"
+        },
+        "location": {
+          "type": "geo_point"
+        },
+        "GeonamesId": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
