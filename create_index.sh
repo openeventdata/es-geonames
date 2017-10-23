@@ -1,11 +1,12 @@
 echo "Downloading Geonames gazetteer..."
-#wget http://download.geonames.org/export/dump/allCountries.zip
+wget http://download.geonames.org/export/dump/allCountries.zip
 echo "Unpacking Geonames gazetteer..."
-#unzip allCountries.zip
+unzip allCountries.zip
 
 echo "Starting Docker container and data volume..."
-sudo docker run -d -p 127.0.0.1:9200:9200 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:5.1.2
-sleep 10s
+sudo docker run -d -p 127.0.0.1:9200:9200 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:5.5.2
+
+sleep 10
 
 echo "Creating mappings for the fields in the Geonames index..."
 curl -XPUT 'localhost:9200/geonames' -H 'Content-Type: application/json' -d @geonames_mapping.json
