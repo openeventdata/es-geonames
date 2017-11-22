@@ -1,11 +1,12 @@
 # coding: utf-8
-from pyelasticsearch import bulk_chunks, ElasticSearch
+from __future__ import print_function
+from elasticsearch import Elasticsearch, helpers
 import csv
 import sys
 
 
 csv.field_size_limit(sys.maxsize)
-es = ElasticSearch(urls='http://localhost:9200/', timeout=60, max_retries=2)
+es = Elasticsearch(urls='http://localhost:9200/', timeout=60, max_retries=2)
 
 
 def iso_convert(iso2c):
@@ -92,7 +93,7 @@ def documents(reader, es):
             doc = {"geonameid" : row[0],
                     "name" : row[1],
                     "asciiname" : row[2],
-                    "alternativenames" : row[3],
+                    "alternativenames" : row[3].split(","),
                     "coordinates" : coords,  # 4, 5
                     "feature_class" : row[6],
                     "feature_code" : row[7],
@@ -107,21 +108,21 @@ def documents(reader, es):
                     "elevation" : row[15],
                     "dem" : row[16],
                     "timezone" :  row[17],
-                    "modification_date" : "2014-01-01"
+                    "modification_date" : "2017-10-23"
                    }
-            yield es.index_op(doc, index='geonames', doc_type='geoname')
+            action = {"_index" : "geonames",
+                      "_type" : "geoname",
+                      "_id" : doc['geonameid'],
+                      "_source" : doc}
+            yield action
         except:
             count += 1
 
-    print 'Exception count:', count
+    print('Exception count:', count)
 
+actions = documents(reader, es)
 
-chunk_count = 0
-for chunk in bulk_chunks(documents(reader, es), docs_per_chunk=500):
-    es.bulk(chunk)
-    chunk_count += 1
-    if chunk_count % 1000 == 0:
-        print 'Chunk count: {0}'.format(chunk_count)
+helpers.bulk(es, actions, chunk_size=250)
 
-es.refresh('geonames')
+es.indices.refresh(index='geonames')
 
