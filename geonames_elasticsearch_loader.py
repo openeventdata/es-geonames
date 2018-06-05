@@ -3,7 +3,9 @@ from __future__ import print_function
 from elasticsearch import Elasticsearch, helpers
 import csv
 import sys
-
+from datetime import datetime
+from tqdm import tqdm
+import time
 
 csv.field_size_limit(sys.maxsize)
 es = Elasticsearch(urls='http://localhost:9200/', timeout=60, max_retries=2)
@@ -81,12 +83,10 @@ def iso_convert(iso2c):
         iso3c = "NA"
         return iso3c
 
-f = open('allCountries.txt', 'rt')
-reader = csv.reader(f, delimiter='\t')
-
 def documents(reader, es):
+    todays_date = datetime.today().strftime("%Y-%m-%d")
     count = 0
-    for row in reader:
+    for row in tqdm(reader, total=11741135): # approx
         try:
             coords = row[4] + "," + row[5]
             country_code3 = iso_convert(row[8])
@@ -108,7 +108,7 @@ def documents(reader, es):
                     "elevation" : row[15],
                     "dem" : row[16],
                     "timezone" :  row[17],
-                    "modification_date" : "2017-10-23"
+                    "modification_date" : todays_date
                    }
             action = {"_index" : "geonames",
                       "_type" : "geoname",
@@ -117,12 +117,15 @@ def documents(reader, es):
             yield action
         except:
             count += 1
-
     print('Exception count:', count)
 
-actions = documents(reader, es)
-
-helpers.bulk(es, actions, chunk_size=250)
-
-es.indices.refresh(index='geonames')
-
+if __name__ == "__main__":
+    t = time.time()
+    f = open('allCountries.txt', 'rt')
+    #f = open('shortcountries.txt', 'rt')
+    reader = csv.reader(f, delimiter='\t')
+    actions = documents(reader, es)
+    helpers.bulk(es, actions, chunk_size=500)
+    es.indices.refresh(index='geonames')
+    e = (time.time() - t) / 60
+    print("Elapsed minutes: ", e)
