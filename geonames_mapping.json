@@ -6,24 +6,24 @@
     "mappings" : {
        "geoname" : {
         "properties" : {
-          "geonameid" : {"type" : "text", "index":    "not_analyzed"},
+          "geonameid" : {"type" : "keyword", "index": "true"},
           "name" : {"type" : "text"},
           "asciiname" : {"type" : "text"},
           "alternativenames" : {"type" : "text", "similarity" : "boolean"},
           "coordinates" : {"type" : "geo_point"},
-          "feature_class" :  {"type" : "text", "index":    "not_analyzed"},
-          "feature_code" : {"type" : "text", "index":    "not_analyzed"},
-          "country_code2" : {"type" : "text", "index":    "not_analyzed"},
-          "country_code3" : {"type" : "text", "index":    "not_analyzed"},
+          "feature_class" :  {"type" : "keyword", "index":  "true"},
+          "feature_code" : {"type" : "keyword", "index":    "true"},
+          "country_code2" : {"type" : "keyword", "index":   "true"},
+          "country_code3" : {"type" : "keyword", "index":   "true"},
           "cc2" :  {"type" : "keyword"}, 
-          "admin1_code" : {"type" : "text", "index":  "not_analyzed"},
-          "admin2_code" : {"type" : "text", "index":  "not_analyzed"},
-          "admin3_code" : {"type" : "text", "index":  "not_analyzed"},
-          "admin4_code" : {"type" : "text", "index":  "not_analyzed"},
+          "admin1_code" : {"type" : "keyword", "index":  "true"},
+          "admin2_code" : {"type" : "keyword", "index":  "true"},
+          "admin3_code" : {"type" : "keyword", "index":  "true"},
+          "admin4_code" : {"type" : "keyword", "index":  "true"},
           "population" : {"type" :  "long"},
           "elevation" : {"type" :  "long"},
           "dem" : {"type" :  "long"},
-          "timzeone" :  {"type" : "text", "index":  "not_analyzed"},
+          "timzeone" :  {"type" : "keyword", "index":  "true"},
           "modification_date" : {"type" : "date", "format": "date"}
           }
        }
