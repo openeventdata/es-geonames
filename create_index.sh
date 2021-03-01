@@ -1,5 +1,5 @@
 echo "Starting Docker container and data volume..."
-sudo docker run -d -p 127.0.0.1:9200:9200 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:5.5.2
+sudo docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node" -v /Users/ahalterman/MIT/Geolocation/es-geonames/geonames_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1 
 
 echo "Downloading Geonames gazetteer..."
 wget http://download.geonames.org/export/dump/allCountries.zip

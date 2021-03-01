@@ -90,28 +90,26 @@ def documents(reader, es):
         try:
             coords = row[4] + "," + row[5]
             country_code3 = iso_convert(row[8])
+            alt_names = row[3].split(",")
+            alt_name_length = len(alt_names)
             doc = {"geonameid" : row[0],
                     "name" : row[1],
                     "asciiname" : row[2],
-                    "alternativenames" : row[3].split(","),
+                    "alternativenames" : alt_names,
                     "coordinates" : coords,  # 4, 5
                     "feature_class" : row[6],
                     "feature_code" : row[7],
-                    "country_code2" : row[8],
                     "country_code3" : country_code3,
-                    "cc2" : row[9],
                     "admin1_code" : row[10],
                     "admin2_code" : row[11],
                     "admin3_code" : row[12],
                     "admin4_code" : row[13],
                     "population" : row[14],
-                    "elevation" : row[15],
-                    "dem" : row[16],
-                    "timezone" :  row[17],
+                    "alt_name_length": alt_name_length,
                     "modification_date" : todays_date
                    }
             action = {"_index" : "geonames",
-                      "_type" : "geoname",
+                      #"_type" : "geoname",
                       "_id" : doc['geonameid'],
                       "_source" : doc}
             yield action
@@ -122,7 +120,6 @@ def documents(reader, es):
 if __name__ == "__main__":
     t = time.time()
     f = open('allCountries.txt', 'rt')
-    #f = open('shortcountries.txt', 'rt')
     reader = csv.reader(f, delimiter='\t')
     actions = documents(reader, es)
     helpers.bulk(es, actions, chunk_size=500)

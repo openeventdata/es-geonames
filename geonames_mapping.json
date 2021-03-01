@@ -4,28 +4,23 @@
         "number_of_replicas" : 1
     },
     "mappings" : {
-       "geoname" : {
         "properties" : {
           "geonameid" : {"type" : "keyword", "index": "true"},
           "name" : {"type" : "text"},
           "asciiname" : {"type" : "text"},
-          "alternativenames" : {"type" : "text", "similarity" : "boolean"},
+          "alternativenames" : {"type" : "text", "similarity" : "boolean",
+                                "norms": false},
           "coordinates" : {"type" : "geo_point"},
           "feature_class" :  {"type" : "keyword", "index":  "true"},
           "feature_code" : {"type" : "keyword", "index":    "true"},
-          "country_code2" : {"type" : "keyword", "index":   "true"},
           "country_code3" : {"type" : "keyword", "index":   "true"},
-          "cc2" :  {"type" : "keyword"}, 
           "admin1_code" : {"type" : "keyword", "index":  "true"},
           "admin2_code" : {"type" : "keyword", "index":  "true"},
           "admin3_code" : {"type" : "keyword", "index":  "true"},
           "admin4_code" : {"type" : "keyword", "index":  "true"},
           "population" : {"type" :  "long"},
-          "elevation" : {"type" :  "long"},
-          "dem" : {"type" :  "long"},
-          "timzeone" :  {"type" : "keyword", "index":  "true"},
+          "alt_name_length": {"type": "long"},
           "modification_date" : {"type" : "date", "format": "date"}
           }
        }
-   } 
 }
