@@ -1,5 +1,3 @@
-# coding: utf-8
-from __future__ import print_function
 from elasticsearch import Elasticsearch, helpers
 import csv
 import sys
@@ -89,7 +87,7 @@ def read_adm1(fn="admin1CodesASCII.txt"):
     with open(fn, 'rt') as f:
         reader = csv.reader(f, delimiter='\t')
         for row in reader:
-            adm1_dict[row[0]] = row[1] 
+            adm1_dict[row[0]] = row[1]
     return adm1_dict
 
 def read_adm2(fn="admin2Codes.txt"):
@@ -97,7 +95,7 @@ def read_adm2(fn="admin2Codes.txt"):
     with open(fn, 'rt') as f:
         reader = csv.reader(f, delimiter='\t')
         for row in reader:
-            adm2_dict[row[0]] = row[1] 
+            adm2_dict[row[0]] = row[1]
     return adm2_dict
 
 def documents(reader, es, adm1_dict, adm2_dict):
@@ -169,3 +167,4 @@ if __name__ == "__main__":
     es.indices.refresh(index='geonames')
     e = (time.time() - t) / 60
     print("Elapsed minutes: ", e)
+
