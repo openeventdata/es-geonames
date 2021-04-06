@@ -83,7 +83,24 @@ def iso_convert(iso2c):
         iso3c = "NA"
         return iso3c
 
-def documents(reader, es):
+
+def read_adm1(fn="admin1CodesASCII.txt"):
+    adm1_dict = {}
+    with open(fn, 'rt') as f:
+        reader = csv.reader(f, delimiter='\t')
+        for row in reader:
+            adm1_dict[row[0]] = row[1] 
+    return adm1_dict
+
+def read_adm2(fn="admin2Codes.txt"):
+    adm2_dict = {}
+    with open(fn, 'rt') as f:
+        reader = csv.reader(f, delimiter='\t')
+        for row in reader:
+            adm2_dict[row[0]] = row[1] 
+    return adm2_dict
+
+def documents(reader, es, adm1_dict, adm2_dict):
     todays_date = datetime.today().strftime("%Y-%m-%d")
     count = 0
     for row in tqdm(reader, total=11741135): # approx
@@ -92,6 +109,25 @@ def documents(reader, es):
             country_code3 = iso_convert(row[8])
             alt_names = row[3].split(",")
             alt_name_length = len(alt_names)
+            # get ADM1 name
+            if row[10]:
+                country_admin1 = '.'.join([row[8], row[10]])
+                try:
+                    admin1_name = adm1_dict[country_admin1]
+                except KeyError:
+                    admin1_name = ""
+            else:
+                admin1_name = ""
+            # Get ADM2 name
+            if row[11]:
+                country_admin2 = '.'.join([row[8], row[10], row[11]])
+                try:
+                    admin2_name = adm2_dict[country_admin2]
+                except KeyError:
+                    admin2_name = ""
+                    count += 1
+            else:
+                admin2_name = ""
             doc = {"geonameid" : row[0],
                     "name" : row[1],
                     "asciiname" : row[2],
@@ -101,7 +137,9 @@ def documents(reader, es):
                     "feature_code" : row[7],
                     "country_code3" : country_code3,
                     "admin1_code" : row[10],
+                    "admin1_name": admin1_name,
                     "admin2_code" : row[11],
+                    "admin2_name": admin2_name,
                     "admin3_code" : row[12],
                     "admin4_code" : row[13],
                     "population" : row[14],
@@ -113,15 +151,20 @@ def documents(reader, es):
                       "_id" : doc['geonameid'],
                       "_source" : doc}
             yield action
-        except:
+        except Exception as e:
+            print(e, row)
             count += 1
     print('Exception count:', count)
 
+
+
 if __name__ == "__main__":
     t = time.time()
+    adm1_dict = read_adm1()
+    adm2_dict = read_adm2()
     f = open('allCountries.txt', 'rt')
     reader = csv.reader(f, delimiter='\t')
-    actions = documents(reader, es)
+    actions = documents(reader, es, adm1_dict, adm2_dict)
     helpers.bulk(es, actions, chunk_size=500)
     es.indices.refresh(index='geonames')
     e = (time.time() - t) / 60

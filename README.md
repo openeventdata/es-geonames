@@ -16,16 +16,18 @@ The `geonames_index/` directory can be compressed and moved elsewhere. To start 
 Elasticsearch instance using the prepared index, run
 
 ```
-sudo docker run -d -p 127.0.0.1:9200:9200 -v /PATH/TO/geoname_index/data/:/usr/share/elasticsearch/data elasticsearch:5.1.2
+docker run -d -p 127.0.0.1:9200:9200 -v /PATH/TO/geoname_index/data/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
 
 where `/PATH/TO/geonames_index/data/` is the full path to the decompressed
-index on your host machine.
+index on your host machine. Depending on how you have Docker configured, you
+may need to run this command with `sudo`.
 
-This Geonames index is meant to be used with OEDA's [full text geoparse,
-Mordecai](https://github.com/openeventdata/mordecai).
+This Geonames index is meant to be used with [Mordecai](https://github.com/openeventdata/mordecai), a full-text geoparser.
 
-ES-Geonames with Logstash
-=========================
+## Changes
 
-The same work for the python script but with posibilities to create the index based in the pipeline defined by the developer in the file `logstash/logstash-pipeline.conf`. See logstash folder.
+April 2021: The fields in the Elasticsearch index have changed slightly and now
+include `admin1_name` and `admin2_name` fields. See the
+[mapping](https://github.com/openeventdata/es-geonames/blob/master/geonames_mapping.json)
+for the new field names.
