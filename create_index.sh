@@ -13,6 +13,18 @@ unzip allCountries.zip
 echo "Creating mappings for the fields in the Geonames index..."
 curl -XPUT 'localhost:9200/geonames' -H 'Content-Type: application/json' -d @geonames_mapping.json
 
+echo "Change disk availability limits..."
+curl -X PUT "localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d'
+{
+  "transient": {
+    "cluster.routing.allocation.disk.watermark.low": "10gb",
+    "cluster.routing.allocation.disk.watermark.high": "5gb",
+    "cluster.routing.allocation.disk.watermark.flood_stage": "4gb",
+    "cluster.info.update.interval": "1m"
+  }
+}
+'
+
 echo "\nLoading gazetteer into Elasticsearch..."
 python geonames_elasticsearch_loader.py
 

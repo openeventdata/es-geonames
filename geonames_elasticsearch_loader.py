@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 from tqdm import tqdm
 import time
+from textacy.preprocessing.remove import accents as remove_accents
 
 csv.field_size_limit(sys.maxsize)
 es = Elasticsearch(urls='http://localhost:9200/', timeout=60, max_retries=2)
@@ -90,6 +91,7 @@ def read_adm1(fn="admin1CodesASCII.txt"):
             adm1_dict[row[0]] = row[1]
     return adm1_dict
 
+
 def read_adm2(fn="admin2Codes.txt"):
     adm2_dict = {}
     with open(fn, 'rt') as f:
@@ -98,15 +100,45 @@ def read_adm2(fn="admin2Codes.txt"):
             adm2_dict[row[0]] = row[1]
     return adm2_dict
 
-def documents(reader, es, adm1_dict, adm2_dict):
+def documents(reader, adm1_dict, adm2_dict, expand_ascii=True):
+    """
+    Load Geonames entries provided by the `reader` into Elasticsearch.
+
+    If `expand_ascii` = True, any alternative names with accents will have an
+    accent-stripped form included in the alternative names list along with the original form.
+    For example, the name "Ḩadīqat ash Shahbā" would generate a second entry
+    "Hadiqat ash Shahba". This process does not affect non-Roman characters
+    (e.g. "北京" remains "北京".)
+
+    Parameters
+    ----------
+    reader: a CSV reader object
+    adm1_dict: dict
+      map from numeric ADM1 codes to names
+    adm2_dict: dict
+      map from numeric ADM2 codes to names
+    expand_ascii: bool
+      Include versions of names with accents stripped out.
+    """
     todays_date = datetime.today().strftime("%Y-%m-%d")
     count = 0
-    for row in tqdm(reader, total=11741135): # approx
+    for row in tqdm(reader, total=12237435): # approx
         try:
             coords = row[4] + "," + row[5]
             country_code3 = iso_convert(row[8])
-            alt_names = row[3].split(",")
+            alt_names = list(set(row[3].split(",")))
+            # so annoying...add "US" as an alt name for USA
+            if str(row[0]) == "6252001":
+                alt_names.append("US")
+                alt_names.append("U.S.")
+            if str(row[0]) == "239880":
+                alt_names.append("C.A.R.")
             alt_name_length = len(alt_names)
+            if expand_ascii:
+                stripped = [remove_accents(i) for i in alt_names]
+                both = alt_names + stripped
+                both = list(set(both))
+                alt_names = both
             # get ADM1 name
             if row[10]:
                 country_admin1 = '.'.join([row[8], row[10]])
@@ -145,7 +177,6 @@ def documents(reader, es, adm1_dict, adm2_dict):
                     "modification_date" : todays_date
                    }
             action = {"_index" : "geonames",
-                      #"_type" : "geoname",
                       "_id" : doc['geonameid'],
                       "_source" : doc}
             yield action
@@ -162,7 +193,7 @@ if __name__ == "__main__":
     adm2_dict = read_adm2()
     f = open('allCountries.txt', 'rt')
     reader = csv.reader(f, delimiter='\t')
-    actions = documents(reader, es, adm1_dict, adm2_dict)
+    actions = documents(reader, adm1_dict, adm2_dict)
     helpers.bulk(es, actions, chunk_size=500)
     es.indices.refresh(index='geonames')
     e = (time.time() - t) / 60
