@@ -1,11 +1,10 @@
-# coding: utf-8
-from __future__ import print_function
 from elasticsearch import Elasticsearch, helpers
 import csv
 import sys
 from datetime import datetime
 from tqdm import tqdm
 import time
+from textacy.preprocessing.remove import accents as remove_accents
 
 csv.field_size_limit(sys.maxsize)
 es = Elasticsearch(urls='http://localhost:9200/', timeout=60, max_retries=2)
@@ -83,49 +82,120 @@ def iso_convert(iso2c):
         iso3c = "NA"
         return iso3c
 
-def documents(reader, es):
+
+def read_adm1(fn="admin1CodesASCII.txt"):
+    adm1_dict = {}
+    with open(fn, 'rt') as f:
+        reader = csv.reader(f, delimiter='\t')
+        for row in reader:
+            adm1_dict[row[0]] = row[1]
+    return adm1_dict
+
+
+def read_adm2(fn="admin2Codes.txt"):
+    adm2_dict = {}
+    with open(fn, 'rt') as f:
+        reader = csv.reader(f, delimiter='\t')
+        for row in reader:
+            adm2_dict[row[0]] = row[1]
+    return adm2_dict
+
+def documents(reader, adm1_dict, adm2_dict, expand_ascii=True):
+    """
+    Load Geonames entries provided by the `reader` into Elasticsearch.
+
+    If `expand_ascii` = True, any alternative names with accents will have an
+    accent-stripped form included in the alternative names list along with the original form.
+    For example, the name "Ḩadīqat ash Shahbā" would generate a second entry
+    "Hadiqat ash Shahba". This process does not affect non-Roman characters
+    (e.g. "北京" remains "北京".)
+
+    Parameters
+    ----------
+    reader: a CSV reader object
+    adm1_dict: dict
+      map from numeric ADM1 codes to names
+    adm2_dict: dict
+      map from numeric ADM2 codes to names
+    expand_ascii: bool
+      Include versions of names with accents stripped out.
+    """
     todays_date = datetime.today().strftime("%Y-%m-%d")
     count = 0
-    for row in tqdm(reader, total=11741135): # approx
+    for row in tqdm(reader, total=12237435): # approx
         try:
             coords = row[4] + "," + row[5]
             country_code3 = iso_convert(row[8])
+            alt_names = list(set(row[3].split(",")))
+            # so annoying...add "US" as an alt name for USA
+            if str(row[0]) == "6252001":
+                alt_names.append("US")
+                alt_names.append("U.S.")
+            if str(row[0]) == "239880":
+                alt_names.append("C.A.R.")
+            alt_name_length = len(alt_names)
+            if expand_ascii:
+                stripped = [remove_accents(i) for i in alt_names]
+                both = alt_names + stripped
+                both = list(set(both))
+                alt_names = both
+            # get ADM1 name
+            if row[10]:
+                country_admin1 = '.'.join([row[8], row[10]])
+                try:
+                    admin1_name = adm1_dict[country_admin1]
+                except KeyError:
+                    admin1_name = ""
+            else:
+                admin1_name = ""
+            # Get ADM2 name
+            if row[11]:
+                country_admin2 = '.'.join([row[8], row[10], row[11]])
+                try:
+                    admin2_name = adm2_dict[country_admin2]
+                except KeyError:
+                    admin2_name = ""
+                    count += 1
+            else:
+                admin2_name = ""
             doc = {"geonameid" : row[0],
                     "name" : row[1],
                     "asciiname" : row[2],
-                    "alternativenames" : row[3].split(","),
+                    "alternativenames" : alt_names,
                     "coordinates" : coords,  # 4, 5
                     "feature_class" : row[6],
                     "feature_code" : row[7],
-                    "country_code2" : row[8],
                     "country_code3" : country_code3,
-                    "cc2" : row[9],
                     "admin1_code" : row[10],
+                    "admin1_name": admin1_name,
                     "admin2_code" : row[11],
+                    "admin2_name": admin2_name,
                     "admin3_code" : row[12],
                     "admin4_code" : row[13],
                     "population" : row[14],
-                    "elevation" : row[15],
-                    "dem" : row[16],
-                    "timezone" :  row[17],
+                    "alt_name_length": alt_name_length,
                     "modification_date" : todays_date
                    }
             action = {"_index" : "geonames",
-                      "_type" : "geoname",
                       "_id" : doc['geonameid'],
                       "_source" : doc}
             yield action
-        except:
+        except Exception as e:
+            print(e, row)
             count += 1
     print('Exception count:', count)
 
+
+
 if __name__ == "__main__":
     t = time.time()
+    adm1_dict = read_adm1()
+    adm2_dict = read_adm2()
     f = open('allCountries.txt', 'rt')
-    #f = open('shortcountries.txt', 'rt')
     reader = csv.reader(f, delimiter='\t')
-    actions = documents(reader, es)
+    actions = documents(reader, adm1_dict, adm2_dict)
     helpers.bulk(es, actions, chunk_size=500)
     es.indices.refresh(index='geonames')
     e = (time.time() - t) / 60
     print("Elapsed minutes: ", e)
+
