@@ -8,8 +8,26 @@ moved elsewhere and quickly stood up.
 To download the Geonames.org gazetter, set up Dockerized Elasticsearch, and
 load the gazetteer into Elasticsearch, clone this repository and run
 
-This repo is used to set this up on windows, for some weird reason, using Git-Bash with `create_index.sh` will map the volume to `PROGRAM FILES\GIT\USR\SHARE\ELASTICSEARCH\DATA`
--> which mess up the installation
+```
+bash create_index.sh
+```
+
+The `geonames_index/` directory can be compressed and moved elsewhere. To start a new
+Elasticsearch instance using the prepared index, run
+
+```
+docker run -d -p 127.0.0.1:9200:9200 -v /PATH/TO/geoname_index/data/:/usr/share/elasticsearch/data elasticsearch:7.10.1
+```
+
+where `/PATH/TO/geonames_index/data/` is the full path to the decompressed
+index on your host machine. Depending on how you have Docker configured, you
+may need to run this command with `sudo`.
+
+This Geonames index is meant to be used with [Mordecai](https://github.com/openeventdata/mordecai), a full-text geoparser.
+
+# Windows Installation
+This segment concern windows, for some weird reason, using Git-Bash with `create_index.sh` will map the volume to `PROGRAM FILES\GIT\USR\SHARE\ELASTICSEARCH\DATA`
+-> which mess up the docker volume.
 
 I assume you already have dockerized elasticsearch:7.10.1 on your system, If not:
 `docker pull elasticsearch:7.10.1`
@@ -23,15 +41,18 @@ To setup this repo on windows:
     - https://download.geonames.org/export/dump/admin1CodesASCII.txt
     - https://download.geonames.org/export/dump/admin2Codes.txt
 4. unzip allCountries.zip
-5. (Git-Bash) create_index.sh
+5. (Git-Bash) create_index_windows.sh
 ```
 
-The `geonames_index/` now can be moved elsewhere. To mount it to another elasticsearch container do: 
+The `geonames_index/` directory can be compressed and moved elsewhere. To start a new
+Elasticsearch instance using the prepared index, run
 
 ```
-docker run -dp 127.0.0.1:9200:9200 -e "discovery.type=single-node" -v /PATH/TO/geoname_index/data/:/usr/share/elasticsearch/data elasticsearch:7.10.1
+docker run -d -p 127.0.0.1:9200:9200 -v /PATH/TO/geoname_index/data/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
+## Changes
 
-where `/PATH/TO/geonames_index/data/` is the full path to the decompressed index on your host machine
-
-This Geonames index is meant to be used with [Mordecai](https://github.com/openeventdata/mordecai), a full-text geoparser.
+April 2021: The fields in the Elasticsearch index have changed slightly and now
+include `admin1_name` and `admin2_name` fields. See the
+[mapping](https://github.com/openeventdata/es-geonames/blob/master/geonames_mapping.json)
+for the new field names.
