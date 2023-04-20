@@ -34,8 +34,8 @@ I assume you already have dockerized elasticsearch:7.10.1 on your system, If not
 
 To setup this repo on windows:
 ```
-1. (Terminal) mkdir geonames_index
-2. (Terminal) docker run -dp 127.0.0.1:9200:9200 -e "discovery.type=single-node" -v %cd%/geonames_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1 
+1. (Terminal) mkdir geoname_index
+2. (Terminal) docker run -dp 127.0.0.1:9200:9200 -e "discovery.type=single-node" -v %cd%/geoname_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1 
 3. Download these stuff to this directory:
     - https://download.geonames.org/export/dump/allCountries.zip
     - https://download.geonames.org/export/dump/admin1CodesASCII.txt

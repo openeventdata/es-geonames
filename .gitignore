@@ -5,7 +5,7 @@ admin1CodesASCII.txt
 admin2Codes.txt
 
 #geonames_index
-geonames_index/
+geoname_index/
 
 .idea
 .pyc
