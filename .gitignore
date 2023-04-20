@@ -1,5 +1,12 @@
+#data
 allCountries.zip
 allCountries.txt
+admin1CodesASCII.txt
+admin2Codes.txt
+
+#geonames_index
+geonames_index/
+
 .idea
 .pyc
 *.DS_Store
