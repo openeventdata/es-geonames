@@ -48,7 +48,7 @@ The `geonames_index/` directory can be compressed and moved elsewhere. To start 
 Elasticsearch instance using the prepared index, run
 
 ```
-docker run -d -p 127.0.0.1:9200:9200 -v /PATH/TO/geoname_index/data/:/usr/share/elasticsearch/data elasticsearch:7.10.1
+docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node" -v /PATH/TO/geoname_index/data/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
 ## Changes
 
